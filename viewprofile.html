@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Profile - Friendora</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Your Profile</h1>
+    </header>
+
+    <main id="profile-container">
+        <img id="profile-pic" src="default-avatar.png" alt="Profile Picture">
+        <h2 id="nickname"></h2>
+        <p id="bio"></p>
+        <p><strong>Age:</strong> <span id="age"></span></p>
+        <p><strong>Sex:</strong> <span id="sex"></span></p>
+        <p><strong>Interests:</strong> <span id="interests"></span></p>
+        <p><strong>Hobbies:</strong> <span id="hobbies"></span></p>
+        <p><strong>Account Created:</strong> <span id="created-date"></span></p>
+        <p><strong>Last Login:</strong> <span id="last-login"></span></p>
+    </main>
+
+    <script>
+        const API_KEY = "YOUR_JSONBIN_API_KEY";
+        const BIN_ID = "YOUR_BIN_ID";
+        const username = localStorage.getItem("username");
+
+        if (!username) {
+            alert("You need to log in first!");
+            window.location.href = "signup.html";
+        }
+
+        function formatDate(timestamp) {
+            const date = new Date(timestamp);
+            return date.toLocaleString();
+        }
+
+        fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
+            method: "GET",
+            headers: {
+                "X-Master-Key": API_KEY
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.record.username === username) {
+                document.getElementById("nickname").textContent = data.record.nickname || "No Nickname";
+                document.getElementById("bio").textContent = data.record.bio || "No Bio";
+                document.getElementById("age").textContent = data.record.age || "N/A";
+                document.getElementById("sex").textContent = data.record.sex || "N/A";
+                document.getElementById("interests").textContent = data.record.interests || "None";
+                document.getElementById("hobbies").textContent = data.record.hobbies || "None";
+                document.getElementById("created-date").textContent = formatDate(data.record.createdAt);
+                document.getElementById("last-login").textContent = formatDate(data.record.lastLogin);
+                document.getElementById("profile-pic").src = data.record.profilePic || "default-avatar.png";
+            } else {
+                alert("Profile not found.");
+            }
+        })
+        .catch(error => console.error("Error fetching profile:", error));
+
+        // Update Last Login
+        fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                "X-Master-Key": API_KEY
+            },
+            body: JSON.stringify({ lastLogin: new Date().toISOString() })
+        })
+        .catch(error => console.error("Error updating last login:", error));
+    </script>
+</body>
+</html>
