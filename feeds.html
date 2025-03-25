@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feeds - Friendora</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Friendora Feeds</h1>
+        <button id="create-post-btn" onclick="goToCreatePost()" style="display: none;">➕ Create Post</button>
+    </header>
+
+    <main>
+        <div id="feeds-container"></div>
+    </main>
+
+    <script>
+        const API_KEY = "YOUR_JSONBIN_API_KEY";
+        const BIN_ID = "YOUR_BIN_ID";
+        const username = localStorage.getItem("username");
+
+        // Show "Create Post" button only if user is logged in
+        if (username) {
+            document.getElementById("create-post-btn").style.display = "inline-block";
+        }
+
+        function goToCreatePost() {
+            window.location.href = "postfeed.html";
+        }
+
+        function loadFeeds() {
+            fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
+                method: "GET",
+                headers: {
+                    "X-Master-Key": API_KEY
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                const feedsContainer = document.getElementById("feeds-container");
+                feedsContainer.innerHTML = "";
+
+                if (data.record.posts && data.record.posts.length > 0) {
+                    data.record.posts.forEach((post, index) => {
+                        const postElement = document.createElement("div");
+                        postElement.classList.add("feed-item");
+                        postElement.innerHTML = `
+                            <strong>${post.username}</strong>
+                            <p>${post.text}</p>
+                            ${post.image ? `<img src="${post.image}" class="post-image">` : ""}
+                            <small>${new Date(post.timestamp).toLocaleString()}</small>
+                            <div class="post-actions">
+                                <button onclick="likePost(${index})">❤️ ${post.likes}</button>
+                                <button onclick="reactPost(${index}, '😃')">😃</button>
+                                <button onclick="reactPost(${index}, '👍')">👍</button>
+                                <button onclick="reactPost(${index}, '🔥')">🔥</button>
+                                <input type="text" id="comment-${index}" placeholder="Add a comment">
+                                <button onclick="commentPost(${index})">💬</button>
+                            </div>
+                            <div class="comments">
+                                ${post.comments.map(comment => `<p><strong>${comment.username}:</strong> ${comment.text}</p>`).join("")}
+                            </div>
+                        `;
+                        feedsContainer.appendChild(postElement);
+                    });
+                } else {
+                    feedsContainer.innerHTML = "<p>No feeds available.</p>";
+                }
+            })
+            .catch(error => console.error("Error loading feeds:", error));
+        }
+
+        function likePost(index) {
+            updatePost(index, post => post.likes++);
+        }
+
+        function reactPost(index, reaction) {
+            updatePost(index, post => {
+                if (!post.reactions[reaction]) {
+                    post.reactions[reaction] = 1;
+                } else {
+                    post.reactions[reaction]++;
+                }
+            });
+        }
+
+        function commentPost(index) {
+            const commentText = document.getElementById(`comment-${index}`).value.trim();
+            if (!commentText) return;
+
+            updatePost(index, post => {
+                post.comments.push({ username: localStorage.getItem("username"), text: commentText });
+            });
+        }
+
+        function updatePost(index, updateCallback) {
+            fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
+                method: "GET",
+                headers: { "X-Master-Key": API_KEY }
+            })
+            .then(response => response.json())
+            .then(data => {
+                let posts = data.record.posts || [];
+                if (posts[index]) {
+                    updateCallback(posts[index]);
+
+                    return fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
+                        method: "PUT",
+                        headers: { "Content-Type": "application/json", "X-Master-Key": API_KEY },
+                        body: JSON.stringify({ posts })
+                    });
+                }
+            })
+            .then(() => loadFeeds())
+            .catch(error => console.error("Error updating post:", error));
+        }
+
+        loadFeeds();
+    </script>
+</body>
+</html>
