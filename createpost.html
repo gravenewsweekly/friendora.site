@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Post - Friendora</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Create a Post</h1>
+    </header>
+
+    <main>
+        <div id="post-container">
+            <h2>Share Your Thoughts</h2>
+            <input type="file" id="post-image" accept="image/*">
+            <textarea id="post-text" maxlength="1000" placeholder="Write about your post (max 1000 words)"></textarea>
+            <button onclick="submitPost()">Post</button>
+        </div>
+    </main>
+
+    <script>
+        const API_KEY = "YOUR_JSONBIN_API_KEY";
+        const BIN_ID = "YOUR_BIN_ID";
+        const username = localStorage.getItem("username");
+
+        if (!username) {
+            alert("You need to log in first!");
+            window.location.href = "signup.html";
+        }
+
+        function submitPost() {
+            const text = document.getElementById("post-text").value.trim();
+            const imageInput = document.getElementById("post-image");
+            const imageFile = imageInput.files[0];
+
+            if (!text) {
+                alert("Post cannot be empty.");
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onloadend = function () {
+                const post = {
+                    username: username,
+                    text: text,
+                    image: reader.result || null,
+                    timestamp: new Date().toISOString(),
+                    likes: 0,
+                    reactions: {},
+                    comments: []
+                };
+
+                fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
+                    method: "GET",
+                    headers: {
+                        "X-Master-Key": API_KEY
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    let posts = data.record.posts || [];
+                    posts.unshift(post);
+
+                    return fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
+                        method: "PUT",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "X-Master-Key": API_KEY
+                        },
+                        body: JSON.stringify({ posts })
+                    });
+                })
+                .then(() => {
+                    alert("Post published!");
+                    window.location.href = "feeds.html";
+                })
+                .catch(error => console.error("Error posting:", error));
+            };
+
+            if (imageFile) {
+                reader.readAsDataURL(imageFile);
+            } else {
+                reader.onloadend();
+            }
+        }
+    </script>
+</body>
+</html>
