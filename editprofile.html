@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Profile - Friendora</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Edit Profile</h1>
+    </header>
+
+    <main>
+        <form id="edit-profile-form">
+            <label for="nickname">Nickname:</label>
+            <input type="text" id="nickname" required>
+
+            <label for="bio">Bio:</label>
+            <textarea id="bio" rows="4" required></textarea>
+
+            <label for="age">Age:</label>
+            <input type="number" id="age" min="13" max="100" required>
+
+            <label for="sex">Sex:</label>
+            <select id="sex" required>
+                <option value="">Select</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+            </select>
+
+            <label for="interests">Interests:</label>
+            <input type="text" id="interests" placeholder="E.g., Music, Sports">
+
+            <label for="hobbies">Hobbies:</label>
+            <input type="text" id="hobbies" placeholder="E.g., Reading, Traveling">
+
+            <button type="submit">Save Profile</button>
+        </form>
+    </main>
+
+    <script>
+        const API_KEY = "YOUR_JSONBIN_API_KEY";
+        const BIN_ID = "YOUR_BIN_ID";
+        const username = localStorage.getItem("username");
+
+        if (!username) {
+            alert("You need to log in first!");
+            window.location.href = "signup.html";
+        }
+
+        document.getElementById("edit-profile-form").addEventListener("submit", function(event) {
+            event.preventDefault();
+
+            const profileData = {
+                nickname: document.getElementById("nickname").value.trim(),
+                bio: document.getElementById("bio").value.trim(),
+                age: document.getElementById("age").value,
+                sex: document.getElementById("sex").value,
+                interests: document.getElementById("interests").value.trim(),
+                hobbies: document.getElementById("hobbies").value.trim(),
+                username: username
+            };
+
+            fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-Master-Key": API_KEY
+                },
+                body: JSON.stringify(profileData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert("Profile updated successfully!");
+                window.location.href = "view-profile.html";
+            })
+            .catch(error => {
+                alert("Error updating profile. Please try again.");
+                console.error(error);
+            });
+        });
+
+        // Load existing profile data
+        fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
+            method: "GET",
+            headers: {
+                "X-Master-Key": API_KEY
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.record.username === username) {
+                document.getElementById("nickname").value = data.record.nickname;
+                document.getElementById("bio").value = data.record.bio;
+                document.getElementById("age").value = data.record.age;
+                document.getElementById("sex").value = data.record.sex;
+                document.getElementById("interests").value = data.record.interests;
+                document.getElementById("hobbies").value = data.record.hobbies;
+            }
+        })
+        .catch(error => console.error("Error fetching profile:", error));
+    </script>
+</body>
+</html>
