@@ -1,79 +1,82 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Friendora - Connect & Explore</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
-    <header>
-        <h1>Friendora</h1>
-        <nav>
-            <ul id="nav-links">
-                <li><a href="about.html">About</a></li>
-                <li><a href="contact.html">Contact</a></li>
-                <li><a href="faq.html">FAQ</a></li>
-                <li><a href="feed.html">Feed</a></li>
-                <li><a href="terms.html">Terms</a></li>
-                <li><a href="privacy.html">Privacy</a></li>
-                <li id="user-nav">
-                    <a href="signup.html" id="signup-login">Signup/Login</a>
-                </li>
-            </ul>
-        </nav>
-    </header>
-
-    <main>
-        <h2>Welcome to Friendora</h2>
-        <p>
-            Friendora is a social platform designed to connect people with similar interests. Whether you want to make new friends, 
-            share your thoughts, or explore engaging discussions, Friendora is the perfect place for you.
-        </p>
-        <h3>What You Can Do:</h3>
-        <ul>
-            <li>💬 **Engage in Conversations:** Join discussions, share your opinions, and explore new perspectives.</li>
-            <li>📸 **Profile Customization:** Personalize your profile with photos, bio, and updates.</li>
-            <li>🤝 **Make New Friends:** Connect with like-minded individuals and expand your social circle.</li>
-            <li>📰 **Stay Updated:** Follow trending topics and get real-time updates from your community.</li>
-            <li>🔒 **Privacy & Security:** Enjoy a safe and secure environment with strict moderation and privacy controls.</li>
-        </ul>
-    </main>
-
-    <div id="user-menu" class="hidden">
-        <ul>
-            <li><a href="editprofile.html">Edit Profile</a></li>
-            <li><a href="viewprofile.html">View Profile</a></li>
-            <li><a href="login.html" id="logout">Log Out</a></li>
-        </ul>
-    </div>
-
-    <script>
-        const API_KEY = "$2a$10$aCH1CR8Njx3MGRmkTXGAG.bxD7LPiRSDy5KqU8wZRNMfOGRTxk63i";
-        const BIN_ID = "67e3184d8561e97a50f2bbdb";
-
-        function updateNavbar() {
-            let username = localStorage.getItem("username");
-
-            if (username) {
-                document.getElementById("signup-login").innerText = username;
-                document.getElementById("signup-login").href = "#";
-                document.getElementById("signup-login").addEventListener("click", function() {
-                    document.getElementById("user-menu").classList.toggle("hidden");
-                });
-            } else {
-                document.getElementById("signup-login").innerText = "Signup/Login";
-                document.getElementById("signup-login").href = "signup.html";
-            }
-        }
-
-        document.getElementById("logout").addEventListener("click", function() {
-            localStorage.removeItem("username");
-            alert("Logged out successfully!");
-            location.reload();
-        });
-
-        updateNavbar();
-    </script>
-</body>
+<!DOCTYPE html>  
+<html lang="en">  
+<head>  
+    <meta charset="UTF-8">  
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">  
+    <title>Friendora - Connect & Explore</title>  
+    <link rel="stylesheet" href="style.css">  
+</head>  
+<body>  
+    <header>  
+        <h1>Friendora</h1>  
+        <nav>  
+            <ul id="nav-links">  
+                <li><a href="about.html">About</a></li>  
+                <li><a href="contact.html">Contact</a></li>  
+                <li><a href="faq.html">FAQ</a></li>  
+                <li><a href="feed.html">Feed</a></li>  
+                <li><a href="terms.html">Terms</a></li>  
+                <li><a href="privacy.html">Privacy</a></li>  
+                <li id="user-nav">  
+                    <a href="signup.html" id="signup-login">Signup/Login</a>  
+                </li>  
+            </ul>  
+        </nav>  
+    </header>  
+  
+    <main>  
+        <h2>Welcome to Friendora</h2>  
+        <p>  
+            Friendora is a social platform designed to connect people with similar interests. Whether you want to make new friends,   
+            share your thoughts, or explore engaging discussions, Friendora is the perfect place for you.  
+        </p>  
+        <h3>What You Can Do:</h3>  
+        <ul>  
+            <li>💬 <b>Engage in Conversations:</b> Join discussions, share your opinions, and explore new perspectives.</li>  
+            <li>📸 <b>Profile Customization:</b> Personalize your profile with photos, bio, and updates.</li>  
+            <li>🤝 <b>Make New Friends:</b> Connect with like-minded individuals and expand your social circle.</li>  
+            <li>📰 <b>Stay Updated:</b> Follow trending topics and get real-time updates from your community.</li>  
+            <li>🔒 <b>Privacy & Security:</b> Enjoy a safe and secure environment with strict moderation and privacy controls.</li>  
+        </ul>  
+    </main>  
+  
+    <div id="user-menu" class="hidden">  
+        <ul>  
+            <li><a href="editprofile.html">Edit Profile</a></li>  
+            <li><a href="viewprofile.html">View Profile</a></li>  
+            <li><a href="login.html" id="logout">Log Out</a></li>  
+        </ul>  
+    </div>  
+  
+    <script>  
+        const API_KEY = "$2a$10$aCH1CR8Njx3MGRmkTXGAG.bxD7LPiRSDy5KqU8wZRNMfOGRTxk63i";  
+        const BIN_ID = "67e3184d8561e97a50f2bbdb";  
+  
+        function updateNavbar() {  
+            let username = localStorage.getItem("username");  
+            const signupLogin = document.getElementById("signup-login");  
+            const userMenu = document.getElementById("user-menu");  
+  
+            if (username) {  
+                signupLogin.innerText = username;  
+                signupLogin.href = "#";  
+                signupLogin.addEventListener("click", function(event) {  
+                    event.preventDefault();  
+                    userMenu.classList.toggle("hidden");  
+                });  
+            } else {  
+                signupLogin.innerText = "Signup/Login";  
+                signupLogin.href = "signup.html";  
+            }  
+        }  
+  
+        document.getElementById("logout").addEventListener("click", function() {  
+            localStorage.removeItem("username");  
+            alert("Logged out successfully!");  
+            location.reload();  
+        });  
+  
+        updateNavbar();  
+    </script>  
+</body>  
 </html>
